@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Image Classification</title>
+    <style>
+        body {
+            text-align: center;
+        }
+
+        h1 {
+            margin-top: 50px;
+        }
+
+        input[type="file"] {
+            margin-top: 30px;
+        }
+
+        #result {
+            margin-top: 30px;
+            display: none;
+        }
+    </style>
+</head>
+<body>
+    <h1>Image Classification</h1>
+    <input type="file" id="imageInput">
+    <br>
+    <button onclick="predict()">Predict</button>
+    <div id="result">
+        <h3 id="predictedClass"></h3>
+        <p id="confidence"></p>
+    </div>
+
+    <script>
+        async function predict() {
+            const fileInput = document.getElementById('imageInput');
+            const file = fileInput.files[0];
+
+            if (file) {
+                const formData = new FormData();
+                formData.append('file', file);
+
+                const response = await fetch('http://localhost:8000/predict', {
+                    method: 'POST',
+                    body: formData
+                });
+
+                if (response.ok) {
+                    const result = await response.json();
+                    displayResult(result);
+                } else {
+                    console.error('Prediction failed.');
+                }
+            } else {
+                console.error('No file selected.');
+            }
+        }
+
+        function displayResult(result) {
+            const predictedClass = document.getElementById('predictedClass');
+            const confidence = document.getElementById('confidence');
+            const resultDiv = document.getElementById('result');
+
+            predictedClass.innerHTML = 'Predicted Class: ' + result['class'];
+            confidence.innerHTML = 'Confidence: ' + result['confidence'].toFixed(4);
+
+            resultDiv.style.display = 'block';
+        }
+    </script>
+</body>
+</html>
